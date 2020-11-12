@@ -14,8 +14,15 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, re_path, include
+from rest_framework.schemas import get_schema_view
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    # path('admin/', admin.site.urls),
+    #re_path("api/v1", include("footballleagues.urls")),
+    path('openapi', get_schema_view(
+        title="Football Leagues API",
+        description="API so serve data about Football Leagues",
+        version="1.0.0"      
+    ), name='openapi-schema')
 ]
