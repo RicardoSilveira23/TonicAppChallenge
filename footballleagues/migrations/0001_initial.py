@@ -8,64 +8,111 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='Player',
+            name="Player",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('createddate', models.DateTimeField(auto_now_add=True)),
-                ('createdby', models.TextField(blank=True, null=True)),
-                ('updateddate', models.DateTimeField(auto_now=True)),
-                ('updatedby', models.TextField(blank=True, null=True)),
-                ('is_deleted', models.BooleanField(default=False)),
-                ('name', models.TextField(blank=True)),
-                ('age', models.IntegerField(blank=True)),
-                ('position', models.TextField(blank=True)),
-                ('appearances', models.IntegerField(blank=True)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("createddate", models.DateTimeField(auto_now_add=True)),
+                ("createdby", models.TextField(blank=True, null=True)),
+                ("updateddate", models.DateTimeField(auto_now=True)),
+                ("updatedby", models.TextField(blank=True, null=True)),
+                ("is_deleted", models.BooleanField(default=False)),
+                ("name", models.TextField(blank=True)),
+                ("age", models.IntegerField(blank=True)),
+                ("position", models.TextField(blank=True)),
+                ("appearances", models.IntegerField(blank=True)),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
         ),
         migrations.CreateModel(
-            name='Team',
+            name="Team",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('createddate', models.DateTimeField(auto_now_add=True)),
-                ('createdby', models.TextField(blank=True, null=True)),
-                ('updateddate', models.DateTimeField(auto_now=True)),
-                ('updatedby', models.TextField(blank=True, null=True)),
-                ('is_deleted', models.BooleanField(default=False)),
-                ('name', models.TextField(blank=True, unique=True)),
-                ('city', models.TextField(blank=True)),
-                ('championships_won', models.IntegerField(blank=True, default=0)),
-                ('number_of_players', models.IntegerField(blank=True, default=0)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("createddate", models.DateTimeField(auto_now_add=True)),
+                ("createdby", models.TextField(blank=True, null=True)),
+                ("updateddate", models.DateTimeField(auto_now=True)),
+                ("updatedby", models.TextField(blank=True, null=True)),
+                ("is_deleted", models.BooleanField(default=False)),
+                ("name", models.TextField(blank=True, unique=True)),
+                ("city", models.TextField(blank=True)),
+                ("championships_won", models.IntegerField(blank=True, default=0)),
+                ("number_of_players", models.IntegerField(blank=True, default=0)),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
         ),
         migrations.CreateModel(
-            name='League',
+            name="League",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('createddate', models.DateTimeField(auto_now_add=True)),
-                ('createdby', models.TextField(blank=True, null=True)),
-                ('updateddate', models.DateTimeField(auto_now=True)),
-                ('updatedby', models.TextField(blank=True, null=True)),
-                ('is_deleted', models.BooleanField(default=False)),
-                ('name', models.TextField(blank=True, unique=True)),
-                ('country', models.TextField(blank=True)),
-                ('numberofteams', models.IntegerField(blank=True)),
-                ('current_champion', models.ForeignKey(blank=True, on_delete=django.db.models.deletion.DO_NOTHING, related_name='champion_team_id', to='footballleagues.team')),
-                ('most_appearances', models.ForeignKey(blank=True, on_delete=django.db.models.deletion.DO_NOTHING, related_name='most_appearances_player_id', to='footballleagues.player')),
-                ('most_championships', models.ForeignKey(blank=True, on_delete=django.db.models.deletion.DO_NOTHING, related_name='most_championships_team_id', to='footballleagues.team')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("createddate", models.DateTimeField(auto_now_add=True)),
+                ("createdby", models.TextField(blank=True, null=True)),
+                ("updateddate", models.DateTimeField(auto_now=True)),
+                ("updatedby", models.TextField(blank=True, null=True)),
+                ("is_deleted", models.BooleanField(default=False)),
+                ("name", models.TextField(blank=True, unique=True)),
+                ("country", models.TextField(blank=True)),
+                ("numberofteams", models.IntegerField(blank=True)),
+                (
+                    "current_champion",
+                    models.ForeignKey(
+                        blank=True,
+                        on_delete=django.db.models.deletion.DO_NOTHING,
+                        related_name="champion_team_id",
+                        to="footballleagues.team",
+                    ),
+                ),
+                (
+                    "most_appearances",
+                    models.ForeignKey(
+                        blank=True,
+                        on_delete=django.db.models.deletion.DO_NOTHING,
+                        related_name="most_appearances_player_id",
+                        to="footballleagues.player",
+                    ),
+                ),
+                (
+                    "most_championships",
+                    models.ForeignKey(
+                        blank=True,
+                        on_delete=django.db.models.deletion.DO_NOTHING,
+                        related_name="most_championships_team_id",
+                        to="footballleagues.team",
+                    ),
+                ),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
         ),
     ]

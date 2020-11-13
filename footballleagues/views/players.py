@@ -10,8 +10,7 @@ from ..serializers import *
 
 
 class PlayersAPI(generics.GenericAPIView):
-    """ Players API Endpoints
-    """
+    """Players API Endpoints"""
 
     def get(self, request, *args, **kwargs):
 
@@ -32,7 +31,7 @@ class PlayersAPI(generics.GenericAPIView):
                 name=request.data["name"],
                 age=request.data["age"],
                 position=request.data["position"],
-                appearances=request.data["appearances"]
+                appearances=request.data["appearances"],
             )
 
             player_serialized = PlayersSerializer(player).data
@@ -42,9 +41,9 @@ class PlayersAPI(generics.GenericAPIView):
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
 class PlayersByIdAPI(generics.GenericAPIView):
-    """ Players By ID API Endpoints
-    """
+    """Players By ID API Endpoints"""
 
     @validate_player
     def get(self, request, player_id, player, *args, **kwargs):
@@ -60,7 +59,7 @@ class PlayersByIdAPI(generics.GenericAPIView):
 
         if not request.data:
 
-            return Response({"message" : "Body empty"}, status=status.HTTP_404_NOT_FOUND)
+            return Response({"message": "Body empty"}, status=status.HTTP_404_NOT_FOUND)
         else:
 
             serializer = UpdatePlayerSerializer(player, data=request.data)
@@ -68,7 +67,7 @@ class PlayersByIdAPI(generics.GenericAPIView):
             if serializer.is_valid():
                 serializer.save()
 
-                rsp = {"player" : serializer.data}
+                rsp = {"player": serializer.data}
                 return Response(rsp)
             else:
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -79,5 +78,5 @@ class PlayersByIdAPI(generics.GenericAPIView):
         player.is_deleted = True
         player.save()
 
-        rsp = {"message" : "Player deleted with success"}
+        rsp = {"message": "Player deleted with success"}
         return Response(rsp)
