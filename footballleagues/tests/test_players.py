@@ -10,9 +10,40 @@ PLAYER_ID_API_URL = "/api/v1/player/"
 class PlayerResourceTest(ResourceTestCaseMixin, TestCase):
     def setUp(self):
         super(PlayerResourceTest, self).setUp()
+        team = Team.objects.create(
+            id=0,
+            name="Juventus",
+            city="Torino",
+            coach="Coach",
+            championships_won=70,
+            number_of_players=27,
+        )
+        Team.objects.create(
+            id=1,
+            name="AC Milan",
+            city="Milan",
+            coach="Coach 2",
+            championships_won=45,
+            number_of_players=29,
+            is_deleted=True,
+        )
+
+        Team.objects.create(
+            id=2,
+            name="Inter Milan",
+            city="Milan",
+            coach="Coach 3",
+            championships_won=40,
+            number_of_players=29,
+        )
 
         Player.objects.create(
-            id=0, name="Cristiano Ronaldo", age=38, position="Forward", appearances=450
+            id=0,
+            name="Cristiano Ronaldo",
+            age=38,
+            position="Forward",
+            appearances=450,
+            team=team,
         )
 
     def test_get_players(self):
@@ -27,6 +58,7 @@ class PlayerResourceTest(ResourceTestCaseMixin, TestCase):
         self.assertEqual(player["age"], 38, "Age should be equal")
         self.assertEqual(player["position"], "Forward", "Position should be equal")
         self.assertEqual(player["appearances"], 450, "Appearances should be equal")
+        self.assertEqual(player["team"], "Juventus", "Team name should be equal")
 
     def test_create_player(self):
         """
@@ -35,7 +67,13 @@ class PlayerResourceTest(ResourceTestCaseMixin, TestCase):
         resp = self.api_client.post(
             PLAYER_API_URL,
             format="json",
-            data={"name": "Deco", "age": 52, "position": "Forward", "appearances": 540},
+            data={
+                "name": "Deco",
+                "age": 52,
+                "position": "Forward",
+                "appearances": 540,
+                "team": 0,
+            },
         )
 
         self.assertHttpOK(resp)
@@ -67,6 +105,26 @@ class PlayerResourceTest(ResourceTestCaseMixin, TestCase):
 
         self.assertHttpBadRequest(resp)
 
+    def test_fail_create_player_with_deleted_team(self):
+        """
+        Test POST fail create Player
+        """
+
+        # Missing data parameter, serializer error
+        resp = self.api_client.post(
+            PLAYER_API_URL,
+            format="json",
+            data={
+                "name": "Deco",
+                "age": 52,
+                "position": "Forward",
+                "appearances": 540,
+                "team": 1,
+            },
+        )
+
+        self.assertHttpNotFound(resp)
+
     def test_get_player_by_id(self):
         """
         Test GET Player by id
@@ -96,7 +154,9 @@ class PlayerResourceTest(ResourceTestCaseMixin, TestCase):
         """
 
         resp = self.api_client.put(
-            PLAYER_ID_API_URL + str(0), format="json", data={"appearances": 540}
+            PLAYER_ID_API_URL + str(0),
+            format="json",
+            data={"appearances": 540, "team": 2},
         )
         self.assertHttpOK(resp)
         player = resp.data["player"]
@@ -104,6 +164,7 @@ class PlayerResourceTest(ResourceTestCaseMixin, TestCase):
         self.assertEqual(player["age"], 38, "Age should be equal")
         self.assertEqual(player["position"], "Forward", "Position should be equal")
         self.assertEqual(player["appearances"], 540, "Appearances should be equal")
+        self.assertEqual(player["team"], 2, "Team id should be equal")
 
     def test_fail_put_player_by_id(self):
         """
@@ -119,7 +180,17 @@ class PlayerResourceTest(ResourceTestCaseMixin, TestCase):
         """
 
         resp = self.api_client.put(
-            PLAYER_ID_API_URL + str(0), format="json", data={"age": "FCPorto"}
+            PLAYER_ID_API_URL + str(0), format="json", data={"team": 3}
+        )
+        self.assertHttpBadRequest(resp)
+
+    def test_fail_put_player_with_deleted_data(self):
+        """
+        Test PUT Player by id deleted data
+        """
+
+        resp = self.api_client.put(
+            PLAYER_ID_API_URL + str(0), format="json", data={"team": 1}
         )
         self.assertHttpBadRequest(resp)
 

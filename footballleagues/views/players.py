@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from django.db.models.functions import Now
 from django.core.exceptions import ObjectDoesNotExist
 
-from ..models import Player
+from ..models import *
 from .helpers import *
 from ..serializers import *
 
@@ -26,12 +26,22 @@ class PlayersAPI(generics.GenericAPIView):
         serializer = CreatePlayerSerializer(data=request.data)
 
         if serializer.is_valid():
+            team = None
+
+            if "team" in request.data:
+                team = Team.objects.get(id=request.data["team"])
+                if team.is_deleted:
+                    return Response(
+                        {"message": "Team doesn't exist"},
+                        status=status.HTTP_404_NOT_FOUND,
+                    )
 
             player = Player.objects.create(
                 name=request.data["name"],
                 age=request.data["age"],
                 position=request.data["position"],
                 appearances=request.data["appearances"],
+                team=team,
             )
 
             player_serialized = PlayersSerializer(player).data
