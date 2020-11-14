@@ -1,33 +1,32 @@
-from django.test import TestCase
-from tastypie.test import ResourceTestCaseMixin
-
-from ..models import *
-
-TEAM_API_URL = "/api/v1/team"
-TEAM_ID_API_URL = "/api/v1/team/"
+from .base import *
 
 
 class TeamResourceTest(ResourceTestCaseMixin, TestCase):
     def setUp(self):
         super(TeamResourceTest, self).setUp()
+        team = Team.objects.create(
+            id=0,
+            name="Real Madrid",
+            city="Madrid",
+            coach="Zidane",
+            championships_won=35,
+            number_of_players=32,
+        )
         league = League.objects.create(
             id=0,
             name="La Liga",
             country="Spain",
-            number_of_teams=20,
-            most_championships="Real Madrid",
-            current_champion="Real Madrid",
-            most_appearances="Ronaldo",
+            current_champion=team,
         )
+
+        team.league = league
+        team.save()
 
         League.objects.create(
             id=1,
             name="La Liga 2",
             country="Spain",
             number_of_teams=20,
-            most_championships="Alaves",
-            current_champion="Murcia",
-            most_appearances="Juan",
             is_deleted=True,
         )
 
@@ -36,19 +35,6 @@ class TeamResourceTest(ResourceTestCaseMixin, TestCase):
             name="La Liga 3",
             country="Spain",
             number_of_teams=22,
-            most_championships="Real Sociedad",
-            current_champion="Bilbao",
-            most_appearances="Pedro",
-        )
-
-        Team.objects.create(
-            id=0,
-            name="Real Madrid",
-            city="Madrid",
-            coach="Zidane",
-            championships_won=35,
-            number_of_players=32,
-            league=league,
         )
 
     def test_get_teams(self):

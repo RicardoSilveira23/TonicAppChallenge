@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from django.db.models.functions import Now
 from django.core.exceptions import ObjectDoesNotExist
 
-from ..models import Team
+from ..models.team import Team
 from .helpers import *
 from ..serializers import *
 
@@ -27,8 +27,8 @@ class TeamsAPI(generics.GenericAPIView):
 
         if serializer.is_valid():
             league = None
-            
-            #number_of_players = 0
+
+            # number_of_players = 0
             # if "number_of_players" in request.data:
             #     number_of_players = request.data["number_of_players"]
 

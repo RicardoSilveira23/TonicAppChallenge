@@ -1,6 +1,8 @@
 from rest_framework import serializers
 
-from .models import *
+from .models.player import *
+from .models.league import *
+from .models.team import *
 
 
 class PlayersSerializer(serializers.ModelSerializer):
@@ -98,6 +100,7 @@ class LeaguesSerializer(serializers.ModelSerializer):
         fields = (
             "name",
             "country",
+            "number_of_teams",
             "most_championships",
             "current_champion",
             "most_appearances",
@@ -110,14 +113,34 @@ class CreateLeagueSerializer(serializers.ModelSerializer):
         fields = (
             "name",
             "country",
-            "most_championships",
+            # "most_championships",
             "current_champion",
-            "most_appearances",
+            # "most_appearances",
         )
         extra_kwargs = {
             "name": {"required": True},
             "country": {"required": True},
-            "most_championships": {"required": True},
-            "current_champion": {"required": True},
-            "most_appearances": {"required": True},
+            # "most_championships": {"required": True},
+            "current_champion": {"required": False},
+            # "most_appearances": {"required": True},
         }
+
+
+class UpdateLeagueSerializer(serializers.ModelSerializer):
+    def validate_current_champion(self, value):
+        if value.league.id != self.instance.id:
+            raise serializers.ValidationError("Team doesn't belong to League")
+        elif value.is_deleted:
+            raise serializers.ValidationError("Team doesn't exist")
+        return value
+
+    class Meta:
+        model = League
+        fields = (
+            "name",
+            "country",
+            # "most_championships",
+            "current_champion",
+            "number_of_teams",
+            # "most_appearances",
+        )

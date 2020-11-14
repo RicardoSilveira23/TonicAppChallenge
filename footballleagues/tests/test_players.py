@@ -1,11 +1,4 @@
-from django.test import TestCase
-from tastypie.test import ResourceTestCaseMixin
-
-from ..models import *
-
-PLAYER_API_URL = "/api/v1/player"
-PLAYER_ID_API_URL = "/api/v1/player/"
-TEAM_API_URL = "/api/v1/team"
+from .base import *
 
 
 class PlayerResourceTest(ResourceTestCaseMixin, TestCase):

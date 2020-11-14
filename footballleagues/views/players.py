@@ -4,7 +4,8 @@ from rest_framework.response import Response
 from django.db.models.functions import Now
 from django.core.exceptions import ObjectDoesNotExist
 
-from ..models import *
+from ..models.player import Player
+from ..models.team import Team
 from .helpers import *
 from ..serializers import *
 
