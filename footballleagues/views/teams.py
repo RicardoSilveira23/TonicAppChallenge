@@ -26,6 +26,15 @@ class TeamsAPI(generics.GenericAPIView):
         serializer = CreateTeamSerializer(data=request.data)
 
         if serializer.is_valid():
+            league = None
+
+            if "league" in request.data:
+                league = League.objects.get(id=request.data["league"])
+                if league.is_deleted:
+                    return Response(
+                        {"message": "League doesn't exist"},
+                        status=status.HTTP_404_NOT_FOUND,
+                    )
 
             team = Team.objects.create(
                 name=request.data["name"],
@@ -33,6 +42,7 @@ class TeamsAPI(generics.GenericAPIView):
                 coach=request.data["coach"],
                 championships_won=request.data["championships_won"],
                 number_of_players=request.data["number_of_players"],
+                league=league,
             )
 
             team_serialized = TeamsSerializer(team).data

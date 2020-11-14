@@ -10,6 +10,36 @@ TEAM_ID_API_URL = "/api/v1/team/"
 class TeamResourceTest(ResourceTestCaseMixin, TestCase):
     def setUp(self):
         super(TeamResourceTest, self).setUp()
+        league = League.objects.create(
+            id=0,
+            name="La Liga",
+            country="Spain",
+            number_of_teams=20,
+            most_championships="Real Madrid",
+            current_champion="Real Madrid",
+            most_appearances="Ronaldo",
+        )
+
+        League.objects.create(
+            id=1,
+            name="La Liga 2",
+            country="Spain",
+            number_of_teams=20,
+            most_championships="Alaves",
+            current_champion="Murcia",
+            most_appearances="Juan",
+            is_deleted=True,
+        )
+
+        League.objects.create(
+            id=2,
+            name="La Liga 3",
+            country="Spain",
+            number_of_teams=22,
+            most_championships="Real Sociedad",
+            current_champion="Bilbao",
+            most_appearances="Pedro",
+        )
 
         Team.objects.create(
             id=0,
@@ -18,6 +48,7 @@ class TeamResourceTest(ResourceTestCaseMixin, TestCase):
             coach="Zidane",
             championships_won=35,
             number_of_players=32,
+            league=league,
         )
 
     def test_get_teams(self):
@@ -37,6 +68,7 @@ class TeamResourceTest(ResourceTestCaseMixin, TestCase):
         self.assertEqual(
             team["number_of_players"], 32, "Number of players should be equal"
         )
+        self.assertEqual(team["league"], "La Liga", "League name should be equal")
 
     def test_create_team(self):
         """
@@ -51,6 +83,7 @@ class TeamResourceTest(ResourceTestCaseMixin, TestCase):
                 "coach": "Ronald Koeman",
                 "championships_won": 34,
                 "number_of_players": 33,
+                "league": 0,
             },
         )
 
@@ -65,6 +98,7 @@ class TeamResourceTest(ResourceTestCaseMixin, TestCase):
         self.assertEqual(
             team["number_of_players"], 33, "Number of players should be equal"
         )
+        self.assertEqual(team["league"], "La Liga", "League name should be equal")
 
         resp = self.api_client.get(TEAM_API_URL, format="json")
         self.assertHttpOK(resp)
@@ -78,6 +112,7 @@ class TeamResourceTest(ResourceTestCaseMixin, TestCase):
         self.assertEqual(
             team["number_of_players"], 33, "Number of players should be equal"
         )
+        self.assertEqual(team["league"], "La Liga", "League name should be equal")
 
     def test_fail_create_team(self):
         """
@@ -97,6 +132,27 @@ class TeamResourceTest(ResourceTestCaseMixin, TestCase):
 
         self.assertHttpBadRequest(resp)
 
+    def test_fail_create_team_with_deleted_league(self):
+        """
+        Test POST fail create Team
+        """
+
+        # Missing data parameter, serializer error
+        resp = self.api_client.post(
+            TEAM_API_URL,
+            format="json",
+            data={
+                "name": "FC Barcelona",
+                "city": "Barcelona",
+                "coach": "Ronald Koeman",
+                "championships_won": 34,
+                "number_of_players": 33,
+                "league": 1,
+            },
+        )
+
+        self.assertHttpNotFound(resp)
+
     def test_get_team_by_id(self):
         """
         Test GET Team by id
@@ -114,6 +170,7 @@ class TeamResourceTest(ResourceTestCaseMixin, TestCase):
         self.assertEqual(
             team["number_of_players"], 32, "Number of players should be equal"
         )
+        self.assertEqual(team["league"], "La Liga", "League name should be equal")
 
     def test_fail_get_team_by_non_existent_id(self):
         """
@@ -131,7 +188,9 @@ class TeamResourceTest(ResourceTestCaseMixin, TestCase):
         """
 
         resp = self.api_client.put(
-            TEAM_ID_API_URL + str(0), format="json", data={"championships_won": 36}
+            TEAM_ID_API_URL + str(0),
+            format="json",
+            data={"championships_won": 36, "league": 2},
         )
         self.assertHttpOK(resp)
         team = resp.data["team"]
@@ -144,6 +203,7 @@ class TeamResourceTest(ResourceTestCaseMixin, TestCase):
         self.assertEqual(
             team["number_of_players"], 32, "Number of players should be equal"
         )
+        self.assertEqual(team["league"], 2, "League name should be equal")
 
     def test_fail_put_team_by_id(self):
         """
@@ -162,6 +222,18 @@ class TeamResourceTest(ResourceTestCaseMixin, TestCase):
             TEAM_ID_API_URL + str(0),
             format="json",
             data={"championships_won": "FCPorto"},
+        )
+        self.assertHttpBadRequest(resp)
+
+    def test_fail_put_team_with_deleted_data(self):
+        """
+        Test PUT Team by id deleted data
+        """
+
+        resp = self.api_client.put(
+            TEAM_ID_API_URL + str(0),
+            format="json",
+            data={"league": 1},
         )
         self.assertHttpBadRequest(resp)
 

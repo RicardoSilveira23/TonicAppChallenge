@@ -35,6 +35,8 @@ class UpdatePlayerSerializer(serializers.ModelSerializer):
 
 
 class TeamsSerializer(serializers.ModelSerializer):
+    league = serializers.ReadOnlyField(source="league.name")
+
     class Meta:
         model = Team
         fields = (
@@ -44,13 +46,21 @@ class TeamsSerializer(serializers.ModelSerializer):
             "coach",
             "championships_won",
             "number_of_players",
+            "league",
         )
 
 
 class CreateTeamSerializer(serializers.ModelSerializer):
     class Meta:
         model = Team
-        fields = ("name", "city", "coach", "championships_won", "number_of_players")
+        fields = (
+            "name",
+            "city",
+            "coach",
+            "championships_won",
+            "number_of_players",
+            "league",
+        )
         extra_kwargs = {
             "name": {"required": True},
             "city": {"required": True},
@@ -61,6 +71,11 @@ class CreateTeamSerializer(serializers.ModelSerializer):
 
 
 class UpdateTeamSerializer(serializers.ModelSerializer):
+    def validate_league(self, value):
+        if value.is_deleted:
+            raise serializers.ValidationError("League doesn't exist")
+        return value
+
     class Meta:
         model = Team
         fields = (
@@ -69,6 +84,7 @@ class UpdateTeamSerializer(serializers.ModelSerializer):
             "coach",
             "championships_won",
             "number_of_players",
+            "league",
         )
 
 
