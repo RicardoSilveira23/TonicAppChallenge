@@ -41,16 +41,15 @@ def update_league_team(sender, instance, **kwargs):
         pass
         # Object is new, update will happen in post_save
     else:
-        pass
-        # # Validate if team changed league
-        # if instance.league == None:
-        #     team.league.number_of_teams -= 1
-        #     team.league.save()
-        # elif not team.league == instance.league:
-        #     team.league.number_of_teams -= 1
-        #     team.league.save()
-        #     instance.league.number_of_teams += 1
-        #     instance.league.save()
+        # Validate if team changed league
+        if team.league is not None and instance.league == None:
+            team.league.number_of_teams -= 1
+            team.league.save()
+        elif team.league is not None and not team.league == instance.league:
+            team.league.number_of_teams -= 1
+            team.league.save()
+            instance.league.number_of_teams += 1
+            instance.league.save()
 
 
 # POST_SAVE - check if team is being deleted or if new add to league team count

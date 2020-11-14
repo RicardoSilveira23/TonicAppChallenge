@@ -60,7 +60,7 @@ class LeagueResourceTest(ResourceTestCaseMixin, TestCase):
 
         Team.objects.create(
             id=4,
-            name="Borussia Dortmun",
+            name="Borussia Dortmund",
             city="Dortmund",
             coach="Coach 2",
             championships_won=15,
@@ -137,13 +137,36 @@ class LeagueResourceTest(ResourceTestCaseMixin, TestCase):
         resp = self.api_client.get(LEAGUE_ID_API_URL + str(0), format="json")
         self.assertHttpOK(resp)
         team = resp.data["league"]
-        print(team)
         self.assertEqual(team["name"], "La Liga", "Name should be equal")
         self.assertEqual(team["country"], "Spain", "Country should be equal")
         self.assertEqual(team["number_of_teams"], 2, "Number of teams should be equal")
         self.assertEqual(
             team["current_champion"], "Real Madrid", "Current champion should be equal"
         )
+
+        resp = self.api_client.put(
+            TEAM_ID_API_URL + str(0),
+            format="json",
+            data={"league": 2},
+        )
+        self.assertHttpOK(resp)
+
+        resp = self.api_client.get(LEAGUE_ID_API_URL + str(0), format="json")
+        self.assertHttpOK(resp)
+        team = resp.data["league"]
+        self.assertEqual(team["name"], "La Liga", "Name should be equal")
+        self.assertEqual(team["country"], "Spain", "Country should be equal")
+        self.assertEqual(team["number_of_teams"], 1, "Number of teams should be equal")
+        self.assertEqual(
+            team["current_champion"], "Real Madrid", "Current champion should be equal"
+        )
+
+        resp = self.api_client.get(LEAGUE_ID_API_URL + str(2), format="json")
+        self.assertHttpOK(resp)
+        team = resp.data["league"]
+        self.assertEqual(team["name"], "Bundesliga", "Name should be equal")
+        self.assertEqual(team["country"], "Germany", "Country should be equal")
+        self.assertEqual(team["number_of_teams"], 2, "Number of teams should be equal")
 
     def test_fail_get_league_by_non_existent_id(self):
         """
