@@ -25,7 +25,7 @@ class CreatePlayerSerializer(serializers.ModelSerializer):
 
 class UpdatePlayerSerializer(serializers.ModelSerializer):
     def validate_team(self, value):
-        if value.is_deleted:
+        if value is not None and value.is_deleted:
             raise serializers.ValidationError("Team doesn't exist")
         return value
 
@@ -66,7 +66,7 @@ class CreateTeamSerializer(serializers.ModelSerializer):
             "city": {"required": True},
             "coach": {"required": True},
             "championships_won": {"required": True},
-            "number_of_players": {"required": True},
+            "number_of_players": {"required": False},
         }
 
 

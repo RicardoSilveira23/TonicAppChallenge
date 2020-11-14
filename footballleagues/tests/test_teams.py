@@ -82,7 +82,7 @@ class TeamResourceTest(ResourceTestCaseMixin, TestCase):
                 "city": "Barcelona",
                 "coach": "Ronald Koeman",
                 "championships_won": 34,
-                "number_of_players": 33,
+                # "number_of_players": 33,
                 "league": 0,
             },
         )
@@ -96,7 +96,7 @@ class TeamResourceTest(ResourceTestCaseMixin, TestCase):
             team["championships_won"], 34, "Number of championships should be equal"
         )
         self.assertEqual(
-            team["number_of_players"], 33, "Number of players should be equal"
+            team["number_of_players"], 0, "Number of players should be equal"
         )
         self.assertEqual(team["league"], "La Liga", "League name should be equal")
 
@@ -110,7 +110,7 @@ class TeamResourceTest(ResourceTestCaseMixin, TestCase):
             team["championships_won"], 34, "Number of championships should be equal"
         )
         self.assertEqual(
-            team["number_of_players"], 33, "Number of players should be equal"
+            team["number_of_players"], 0, "Number of players should be equal"
         )
         self.assertEqual(team["league"], "La Liga", "League name should be equal")
 

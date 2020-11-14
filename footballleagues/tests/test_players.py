@@ -5,6 +5,7 @@ from ..models import *
 
 PLAYER_API_URL = "/api/v1/player"
 PLAYER_ID_API_URL = "/api/v1/player/"
+TEAM_API_URL = "/api/v1/team"
 
 
 class PlayerResourceTest(ResourceTestCaseMixin, TestCase):
@@ -16,7 +17,6 @@ class PlayerResourceTest(ResourceTestCaseMixin, TestCase):
             city="Torino",
             coach="Coach",
             championships_won=70,
-            number_of_players=27,
         )
         Team.objects.create(
             id=1,
@@ -64,6 +64,14 @@ class PlayerResourceTest(ResourceTestCaseMixin, TestCase):
         """
         Test POST Create Player
         """
+
+        resp = self.api_client.get(TEAM_API_URL, format="json")
+        self.assertHttpOK(resp)
+        team = resp.data["teams"][1]
+        self.assertEqual(
+            team["number_of_players"], 1, "Number of players should be equal"
+        )
+
         resp = self.api_client.post(
             PLAYER_API_URL,
             format="json",
@@ -90,6 +98,13 @@ class PlayerResourceTest(ResourceTestCaseMixin, TestCase):
         self.assertEqual(player["age"], 52, "Age should be equal")
         self.assertEqual(player["position"], "Forward", "Position should be equal")
         self.assertEqual(player["appearances"], 540, "Appearances should be equal")
+
+        resp = self.api_client.get(TEAM_API_URL, format="json")
+        self.assertHttpOK(resp)
+        team = resp.data["teams"][1]
+        self.assertEqual(
+            team["number_of_players"], 2, "Number of players should be equal"
+        )
 
     def test_fail_create_player(self):
         """
@@ -152,6 +167,12 @@ class PlayerResourceTest(ResourceTestCaseMixin, TestCase):
         """
         Test PUT Player by id
         """
+        resp = self.api_client.get(TEAM_API_URL, format="json")
+        self.assertHttpOK(resp)
+        team = resp.data["teams"][1]
+        self.assertEqual(
+            team["number_of_players"], 1, "Number of players should be equal"
+        )
 
         resp = self.api_client.put(
             PLAYER_ID_API_URL + str(0),
@@ -165,6 +186,37 @@ class PlayerResourceTest(ResourceTestCaseMixin, TestCase):
         self.assertEqual(player["position"], "Forward", "Position should be equal")
         self.assertEqual(player["appearances"], 540, "Appearances should be equal")
         self.assertEqual(player["team"], 2, "Team id should be equal")
+
+        resp = self.api_client.get(TEAM_API_URL, format="json")
+        self.assertHttpOK(resp)
+        team = resp.data["teams"][1]
+        self.assertEqual(
+            team["number_of_players"], 30, "Number of players should be equal"
+        )
+        team = resp.data["teams"][0]
+        self.assertEqual(
+            team["number_of_players"], 0, "Number of players should be equal"
+        )
+
+        resp = self.api_client.put(
+            PLAYER_ID_API_URL + str(0),
+            format="json",
+            data={"appearances": 540, "team": None},
+        )
+        self.assertHttpOK(resp)
+        player = resp.data["player"]
+        self.assertEqual(player["name"], "Cristiano Ronaldo", "Name should be equal")
+        self.assertEqual(player["age"], 38, "Age should be equal")
+        self.assertEqual(player["position"], "Forward", "Position should be equal")
+        self.assertEqual(player["appearances"], 540, "Appearances should be equal")
+        self.assertEqual(player["team"], None, "Team id should be equal")
+
+        resp = self.api_client.get(TEAM_API_URL, format="json")
+        self.assertHttpOK(resp)
+        team = resp.data["teams"][1]
+        self.assertEqual(
+            team["number_of_players"], 29, "Number of players should be equal"
+        )
 
     def test_fail_put_player_by_id(self):
         """
@@ -199,6 +251,13 @@ class PlayerResourceTest(ResourceTestCaseMixin, TestCase):
         Test DELETE Player by id
         """
 
+        resp = self.api_client.get(TEAM_API_URL, format="json")
+        self.assertHttpOK(resp)
+        team = resp.data["teams"][1]
+        self.assertEqual(
+            team["number_of_players"], 1, "Number of players should be equal"
+        )
+
         resp = self.api_client.delete(PLAYER_ID_API_URL + str(0), format="json")
         self.assertHttpOK(resp)
         message = resp.data["message"]
@@ -210,3 +269,10 @@ class PlayerResourceTest(ResourceTestCaseMixin, TestCase):
         self.assertHttpNotFound(resp)
         message = resp.data["message"]
         self.assertEqual("Player doesn't exist", message, "Message should be equal")
+
+        resp = self.api_client.get(TEAM_API_URL, format="json")
+        self.assertHttpOK(resp)
+        team = resp.data["teams"][1]
+        self.assertEqual(
+            team["number_of_players"], 0, "Number of players should be equal"
+        )

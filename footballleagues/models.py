@@ -1,4 +1,6 @@
 from django.db import models
+from django.dispatch import receiver
+from django.db.models.signals import post_save, pre_save
 
 
 class BaseModel(models.Model):
@@ -10,6 +12,9 @@ class BaseModel(models.Model):
 
     class Meta:
         abstract = True
+
+    def __str__(self):
+        return self.__repr__()
 
 
 class League(BaseModel):
@@ -51,3 +56,34 @@ class Player(BaseModel):
         blank=True,
         null=True,
     )
+
+
+# PRE_SAVE - if team changes, change count
+@receiver(pre_save, sender=Player)
+def update_team_player(sender, instance, **kwargs):
+    try:
+        player = sender.objects.get(pk=instance.pk)
+    except sender.DoesNotExist:
+        pass
+        # Object is new, update will happen in post_save
+    else:
+        # Validate if player changed team
+        if instance.team == None:
+            player.team.number_of_players -= 1
+            player.team.save()
+        elif not player.team == instance.team:
+            player.team.number_of_players -= 1
+            player.team.save()
+            instance.team.number_of_players += 1
+            instance.team.save()
+
+
+# POST_SAVE - check if player is being deleted or if new add to team player count
+@receiver(post_save, sender=Player)
+def new_or_deleted_team_player(sender, instance, created, **kwargs):
+    if created:
+        instance.team.number_of_players += 1
+        instance.team.save()
+    elif instance.is_deleted:
+        instance.team.number_of_players -= 1
+        instance.team.save()

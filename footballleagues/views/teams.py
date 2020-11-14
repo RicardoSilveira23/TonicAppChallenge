@@ -27,6 +27,10 @@ class TeamsAPI(generics.GenericAPIView):
 
         if serializer.is_valid():
             league = None
+            
+            #number_of_players = 0
+            # if "number_of_players" in request.data:
+            #     number_of_players = request.data["number_of_players"]
 
             if "league" in request.data:
                 league = League.objects.get(id=request.data["league"])
@@ -41,7 +45,7 @@ class TeamsAPI(generics.GenericAPIView):
                 city=request.data["city"],
                 coach=request.data["coach"],
                 championships_won=request.data["championships_won"],
-                number_of_players=request.data["number_of_players"],
+                # number_of_players=number_of_players,
                 league=league,
             )
 
