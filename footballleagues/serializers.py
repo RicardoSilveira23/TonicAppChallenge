@@ -86,7 +86,7 @@ class CreateTeamSerializer(serializers.ModelSerializer):
 
 class UpdateTeamSerializer(serializers.ModelSerializer):
     def validate_league(self, value):
-        if value.is_deleted:
+        if value != None and value.is_deleted:
             raise serializers.ValidationError("League doesn't exist")
         return value
 

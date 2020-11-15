@@ -41,18 +41,37 @@ def update_league_team(sender, instance, **kwargs):
         pass
         # Object is new, update will happen in post_save
     else:
-        # Validate if team changed league
-        if team.league is None and not instance.league == None:
-            instance.league.number_of_teams += 1
-            instance.league.save()
-        elif team.league is not None and instance.league == None:
-            team.league.number_of_teams -= 1
-            team.league.save()
-        elif team.league is not None and not team.league == instance.league:
-            team.league.number_of_teams -= 1
-            team.league.save()
-            instance.league.number_of_teams += 1
-            instance.league.save()
+        new_league = instance.league
+        current_league = team.league
+
+        # No league -> new league
+        if current_league == None and new_league != None:
+            new_league.number_of_teams += 1
+            new_league.save()
+            compare_most_championships(new_league, instance)
+
+        # League -> no League
+        elif current_league != None and new_league == None:
+            current_league.number_of_teams -= 1
+            current_league.save()
+            query_most_championships(current_league, instance)
+
+        # Changed League
+        elif not current_league == new_league:
+            current_league.number_of_teams -= 1
+            current_league.save()
+            query_most_championships(current_league, instance)
+
+            new_league.number_of_teams += 1
+            new_league.save()
+            compare_most_championships(new_league, instance)
+
+        # Changed number of championships but remained in same league
+        elif (
+            current_league == new_league
+            and team.championships_won != instance.championships_won
+        ):
+            compare_most_championships(current_league, instance)
 
 
 # POST_SAVE - check if team is being deleted or if new add to league team count
@@ -64,6 +83,33 @@ def new_or_deleted_league_team(sender, instance, created, **kwargs):
             if not instance.is_deleted:
                 league.number_of_teams += 1
                 league.save()
+                compare_most_championships(league, instance)
+
         elif instance.is_deleted:
             league.number_of_teams -= 1
             league.save()
+            query_most_championships(league, instance)
+
+
+def compare_most_championships(league, team):
+    # if team has a league its required to calculate most_championships field
+    if league.most_championships is not None:
+        if league.most_championships.championships_won < team.championships_won:
+            league.most_championships = team
+            league.save()
+    else:
+        league.most_championships = team
+        league.save()
+
+
+def query_most_championships(league, team):
+    if league.most_championships == team:
+        # query most_championships
+        team_with_most = (
+            Team.objects.filter(is_deleted=False, league=league)
+            .exclude(id=team.id)
+            .order_by("-championships_won")
+            .first()
+        )
+        league.most_championships = team_with_most
+        league.save()

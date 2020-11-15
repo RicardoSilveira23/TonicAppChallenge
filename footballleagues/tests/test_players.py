@@ -252,7 +252,7 @@ class PlayerResourceTest(ResourceTestCaseMixin, TestCase):
         resp = self.api_client.put(
             PLAYER_ID_API_URL + str(0),
             format="json",
-            data={"appearances": 540, "team": None},
+            data={"appearances": 540},
         )
         self.assertHttpOK(resp)
         player = resp.data["player"]
@@ -260,13 +260,13 @@ class PlayerResourceTest(ResourceTestCaseMixin, TestCase):
         self.assertEqual(player["age"], 38, "Age should be equal")
         self.assertEqual(player["position"], "Forward", "Position should be equal")
         self.assertEqual(player["appearances"], 540, "Appearances should be equal")
-        self.assertEqual(player["team"], None, "Team id should be equal")
+        self.assertEqual(player["team"], 2, "Team id should be equal")
 
         resp = self.api_client.get(TEAM_API_URL, format="json")
         self.assertHttpOK(resp)
         team = resp.data["teams"][1]
         self.assertEqual(
-            team["number_of_players"], 29, "Number of players should be equal"
+            team["number_of_players"], 30, "Number of players should be equal"
         )
 
         resp = self.api_client.get(LEAGUE_ID_API_URL + str(0), format="json")
@@ -282,7 +282,7 @@ class PlayerResourceTest(ResourceTestCaseMixin, TestCase):
         )
         self.assertEqual(
             league["most_appearances"],
-            "Dibala",
+            "Cristiano Ronaldo",
             "Most appearances should be equal",
         )
 
