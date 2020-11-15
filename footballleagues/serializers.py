@@ -6,11 +6,17 @@ from .models.team import *
 
 
 class PlayersSerializer(serializers.ModelSerializer):
-    team = serializers.ReadOnlyField(source="team.name")
+    team = serializers.SerializerMethodField("get_team_name")
 
     class Meta:
         model = Player
         fields = ("id", "name", "age", "position", "appearances", "team")
+
+    def get_team_name(self, obj):
+        if obj.team == None:
+            return None
+        else:
+            return obj.team.name
 
 
 class CreatePlayerSerializer(serializers.ModelSerializer):
@@ -37,7 +43,7 @@ class UpdatePlayerSerializer(serializers.ModelSerializer):
 
 
 class TeamsSerializer(serializers.ModelSerializer):
-    league = serializers.ReadOnlyField(source="league.name")
+    league = serializers.SerializerMethodField("get_league_name")
 
     class Meta:
         model = Team
@@ -50,6 +56,12 @@ class TeamsSerializer(serializers.ModelSerializer):
             "number_of_players",
             "league",
         )
+
+    def get_league_name(self, obj):
+        if obj.league == None:
+            return None
+        else:
+            return obj.league.name
 
 
 class CreateTeamSerializer(serializers.ModelSerializer):
@@ -91,9 +103,15 @@ class UpdateTeamSerializer(serializers.ModelSerializer):
 
 
 class LeaguesSerializer(serializers.ModelSerializer):
-    most_championships = serializers.ReadOnlyField(source="most_championships.name")
-    current_champion = serializers.ReadOnlyField(source="current_champion.name")
-    most_appearances = serializers.ReadOnlyField(source="most_appearances.name")
+    most_championships = serializers.SerializerMethodField(
+        "get_team_with_most_championships_name"
+    )
+    current_champion = serializers.SerializerMethodField(
+        "get_current_champion_team_name"
+    )
+    most_appearances = serializers.SerializerMethodField(
+        "get_player_name_with_most_appearances"
+    )
 
     class Meta:
         model = League
@@ -105,6 +123,24 @@ class LeaguesSerializer(serializers.ModelSerializer):
             "current_champion",
             "most_appearances",
         )
+
+    def get_team_with_most_championships_name(self, obj):
+        if obj.most_championships == None:
+            return None
+        else:
+            return obj.most_championships.name
+
+    def get_current_champion_team_name(self, obj):
+        if obj.current_champion == None:
+            return None
+        else:
+            return obj.current_champion.name
+
+    def get_player_name_with_most_appearances(self, obj):
+        if obj.most_appearances == None:
+            return None
+        else:
+            return obj.most_appearances.name
 
 
 class CreateLeagueSerializer(serializers.ModelSerializer):

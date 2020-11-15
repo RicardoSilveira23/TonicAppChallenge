@@ -74,12 +74,16 @@ class LeagueResourceTest(ResourceTestCaseMixin, TestCase):
 
         resp = self.api_client.get(LEAGUE_API_URL, format="json")
         self.assertHttpOK(resp)
-        team = resp.data["leagues"][0]
-        self.assertEqual(team["name"], "La Liga", "Name should be equal")
-        self.assertEqual(team["country"], "Spain", "Country should be equal")
-        self.assertEqual(team["number_of_teams"], 2, "Number of teams should be equal")
+        league = resp.data["leagues"][0]
+        self.assertEqual(league["name"], "La Liga", "Name should be equal")
+        self.assertEqual(league["country"], "Spain", "Country should be equal")
         self.assertEqual(
-            team["current_champion"], "Real Madrid", "Current champion should be equal"
+            league["number_of_teams"], 2, "Number of teams should be equal"
+        )
+        self.assertEqual(
+            league["current_champion"],
+            "Real Madrid",
+            "Current champion should be equal",
         )
 
     def test_create_league(self):
@@ -96,10 +100,12 @@ class LeagueResourceTest(ResourceTestCaseMixin, TestCase):
         )
 
         self.assertHttpOK(resp)
-        team = resp.data["league"]
-        self.assertEqual(team["name"], "Ligue 1", "Name should be equal")
-        self.assertEqual(team["country"], "France", "City should be equal")
-        self.assertEqual(team["number_of_teams"], 0, "Number of teams should be equal")
+        league = resp.data["league"]
+        self.assertEqual(league["name"], "Ligue 1", "Name should be equal")
+        self.assertEqual(league["country"], "France", "City should be equal")
+        self.assertEqual(
+            league["number_of_teams"], 0, "Number of teams should be equal"
+        )
 
     def test_fail_create_league(self):
         """
@@ -136,12 +142,16 @@ class LeagueResourceTest(ResourceTestCaseMixin, TestCase):
 
         resp = self.api_client.get(LEAGUE_ID_API_URL + str(0), format="json")
         self.assertHttpOK(resp)
-        team = resp.data["league"]
-        self.assertEqual(team["name"], "La Liga", "Name should be equal")
-        self.assertEqual(team["country"], "Spain", "Country should be equal")
-        self.assertEqual(team["number_of_teams"], 2, "Number of teams should be equal")
+        league = resp.data["league"]
+        self.assertEqual(league["name"], "La Liga", "Name should be equal")
+        self.assertEqual(league["country"], "Spain", "Country should be equal")
         self.assertEqual(
-            team["current_champion"], "Real Madrid", "Current champion should be equal"
+            league["number_of_teams"], 2, "Number of teams should be equal"
+        )
+        self.assertEqual(
+            league["current_champion"],
+            "Real Madrid",
+            "Current champion should be equal",
         )
 
         resp = self.api_client.put(
@@ -153,20 +163,26 @@ class LeagueResourceTest(ResourceTestCaseMixin, TestCase):
 
         resp = self.api_client.get(LEAGUE_ID_API_URL + str(0), format="json")
         self.assertHttpOK(resp)
-        team = resp.data["league"]
-        self.assertEqual(team["name"], "La Liga", "Name should be equal")
-        self.assertEqual(team["country"], "Spain", "Country should be equal")
-        self.assertEqual(team["number_of_teams"], 1, "Number of teams should be equal")
+        league = resp.data["league"]
+        self.assertEqual(league["name"], "La Liga", "Name should be equal")
+        self.assertEqual(league["country"], "Spain", "Country should be equal")
         self.assertEqual(
-            team["current_champion"], "Real Madrid", "Current champion should be equal"
+            league["number_of_teams"], 1, "Number of teams should be equal"
+        )
+        self.assertEqual(
+            league["current_champion"],
+            "Real Madrid",
+            "Current champion should be equal",
         )
 
         resp = self.api_client.get(LEAGUE_ID_API_URL + str(2), format="json")
         self.assertHttpOK(resp)
-        team = resp.data["league"]
-        self.assertEqual(team["name"], "Bundesliga", "Name should be equal")
-        self.assertEqual(team["country"], "Germany", "Country should be equal")
-        self.assertEqual(team["number_of_teams"], 2, "Number of teams should be equal")
+        league = resp.data["league"]
+        self.assertEqual(league["name"], "Bundesliga", "Name should be equal")
+        self.assertEqual(league["country"], "Germany", "Country should be equal")
+        self.assertEqual(
+            league["number_of_teams"], 2, "Number of teams should be equal"
+        )
 
     def test_fail_get_league_by_non_existent_id(self):
         """
@@ -189,12 +205,14 @@ class LeagueResourceTest(ResourceTestCaseMixin, TestCase):
             data={"name": "Liga Espanhola", "current_champion": 1},
         )
         self.assertHttpOK(resp)
-        team = resp.data["league"]
-        self.assertEqual(team["name"], "Liga Espanhola", "Name should be equal")
-        self.assertEqual(team["country"], "Spain", "Country should be equal")
-        self.assertEqual(team["number_of_teams"], 2, "Number of teams should be equal")
+        league = resp.data["league"]
+        self.assertEqual(league["name"], "Liga Espanhola", "Name should be equal")
+        self.assertEqual(league["country"], "Spain", "Country should be equal")
         self.assertEqual(
-            team["current_champion"], 1, "Current champion id should be equal"
+            league["number_of_teams"], 2, "Number of teams should be equal"
+        )
+        self.assertEqual(
+            league["current_champion"], 1, "Current champion id should be equal"
         )
 
     def test_fail_put_team_by_id(self):

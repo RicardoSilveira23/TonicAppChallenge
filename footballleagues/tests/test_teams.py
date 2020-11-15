@@ -34,7 +34,6 @@ class TeamResourceTest(ResourceTestCaseMixin, TestCase):
             id=2,
             name="La Liga 3",
             country="Spain",
-            number_of_teams=22,
         )
 
     def test_get_teams(self):
@@ -68,7 +67,6 @@ class TeamResourceTest(ResourceTestCaseMixin, TestCase):
                 "city": "Barcelona",
                 "coach": "Ronald Koeman",
                 "championships_won": 34,
-                # "number_of_players": 33,
                 "league": 0,
             },
         )
@@ -99,6 +97,20 @@ class TeamResourceTest(ResourceTestCaseMixin, TestCase):
             team["number_of_players"], 0, "Number of players should be equal"
         )
         self.assertEqual(team["league"], "La Liga", "League name should be equal")
+
+        resp = self.api_client.get(LEAGUE_ID_API_URL + str(0), format="json")
+        self.assertHttpOK(resp)
+        league = resp.data["league"]
+        self.assertEqual(league["name"], "La Liga", "Name should be equal")
+        self.assertEqual(league["country"], "Spain", "Country should be equal")
+        self.assertEqual(
+            league["number_of_teams"], 2, "Number of teams should be equal"
+        )
+        self.assertEqual(
+            league["current_champion"],
+            "Real Madrid",
+            "Current champion should be equal",
+        )
 
     def test_fail_create_team(self):
         """
