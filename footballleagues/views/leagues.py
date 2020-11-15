@@ -1,8 +1,10 @@
 import logging
 from rest_framework import generics, status
 from rest_framework.response import Response
-from django.db.models.functions import Now
+from django.db.models import Q, Count
 from django.core.exceptions import ObjectDoesNotExist
+from django.core.paginator import Paginator
+
 
 from ..models.league import League
 from .helpers import *
@@ -13,13 +15,41 @@ class LeaguesAPI(generics.GenericAPIView):
     """Leagues API Endpoints"""
 
     def get(self, request, *args, **kwargs):
+        # filter by name of player
+        # allow pagination
+        per_page = request.GET.get("items_perpage", None)
+        page_number = request.GET.get("page_number", None)
+        name = request.GET.get("name", None)
 
         leagues = League.objects.filter(is_deleted=False)
-        serialized_data = LeaguesSerializer(leagues, many=True).data
 
-        rsp = {"leagues": serialized_data}
+        if name is not None:
+            # filter by player name
+            # filter by players, that team not null, teams distinct
+            teams_ids = (
+                Player.objects.filter(Q(is_deleted=False) & Q(name__icontains=name))
+                .values_list("team_id", flat=True)
+                .distinct()
+            )
+            leagues = leagues.filter(teams__id__in=teams_ids)
+            
+        if per_page and page_number is not None:
+            paginator = Paginator(leagues.order_by("-created_date"), per_page)
+            page_content = paginator.get_page(page_number)
 
-        return Response(rsp)
+            serialized_data = LeaguesSerializer(page_content, many=True).data
+            rsp = {
+                "leagues": serialized_data,
+                "total": paginator.count,
+                "page": page_content.number,
+                "page_total": paginator.num_pages,
+            }
+            return Response(rsp)
+        else:
+            # Return all
+            serialized_data = LeaguesSerializer(leagues, many=True).data
+            rsp = {"leagues": serialized_data}
+            return Response(rsp)
 
     def post(self, request, *args, **kwargs):
 

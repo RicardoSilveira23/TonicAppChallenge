@@ -116,6 +116,7 @@ class LeaguesSerializer(serializers.ModelSerializer):
     class Meta:
         model = League
         fields = (
+            "id",
             "name",
             "country",
             "number_of_teams",

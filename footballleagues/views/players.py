@@ -3,6 +3,7 @@ from rest_framework import generics, status
 from rest_framework.response import Response
 from django.db.models.functions import Now
 from django.core.exceptions import ObjectDoesNotExist
+from django.core.paginator import Paginator
 
 from ..models.player import Player
 from ..models.team import Team
@@ -14,13 +15,29 @@ class PlayersAPI(generics.GenericAPIView):
     """Players API Endpoints"""
 
     def get(self, request, *args, **kwargs):
+        per_page = request.GET.get("items_perpage", None)
+        page_number = request.GET.get("page_number", None)
 
         players = Player.objects.filter(is_deleted=False)
-        serialized_data = PlayersSerializer(players, many=True).data
 
-        rsp = {"players": serialized_data}
+        if per_page and page_number is not None:
+            paginator = Paginator(players, per_page)
+            page_content = paginator.get_page(page_number)
 
-        return Response(rsp)
+            serialized_data = PlayersSerializer(page_content, many=True).data
+            rsp = {
+                "players": serialized_data,
+                "total": paginator.count,
+                "page": page_content.number,
+                "page_total": paginator.num_pages,
+            }
+            return Response(rsp)
+
+        else:
+            # Return all
+            serialized_data = PlayersSerializer(players, many=True).data
+            rsp = {"players": serialized_data}
+            return Response(rsp)
 
     def post(self, request, *args, **kwargs):
 

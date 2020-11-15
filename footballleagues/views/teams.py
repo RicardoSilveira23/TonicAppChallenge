@@ -3,6 +3,7 @@ from rest_framework import generics, status
 from rest_framework.response import Response
 from django.db.models.functions import Now
 from django.core.exceptions import ObjectDoesNotExist
+from django.core.paginator import Paginator
 
 from ..models.team import Team
 from .helpers import *
@@ -13,13 +14,37 @@ class TeamsAPI(generics.GenericAPIView):
     """Teams API Endpoints"""
 
     def get(self, request, *args, **kwargs):
+        # filter by name, city, n champs, coach name, number of players
+        # allow pagination
+        per_page = request.GET.get("items_perpage", None)
+        page_number = request.GET.get("page_number", None)
+        name = request.GET.get("name", None)
+        city = request.GET.get("city", None)
+        num_champs = request.GET.get("num_champs", None)
+        coach = request.GET.get("coach", None)
+        number_of_players = request.GET.get("number_of_players", None)
 
         teams = Team.objects.filter(is_deleted=False)
-        serialized_data = TeamsSerializer(teams, many=True).data
 
-        rsp = {"teams": serialized_data}
+        teams = teams_filtering(teams,name,city,num_champs, coach, number_of_players)
 
-        return Response(rsp)
+        if per_page and page_number is not None:
+            paginator = Paginator(teams.order_by("-created_date"), per_page)
+            page_content = paginator.get_page(page_number)
+
+            serialized_data = TeamsSerializer(page_content, many=True).data
+            rsp = {
+                "teams": serialized_data,
+                "total": paginator.count,
+                "page": page_content.number,
+                "page_total": paginator.num_pages,
+            }
+            return Response(rsp)
+        else:
+            # Return all
+            serialized_data = TeamsSerializer(teams, many=True).data
+            rsp = {"teams": serialized_data}
+            return Response(rsp)
 
     def post(self, request, *args, **kwargs):
 
@@ -56,6 +81,27 @@ class TeamsAPI(generics.GenericAPIView):
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+def teams_filtering(teams, name,city,num_champs, coach, number_of_players):
+
+    if name is not None:
+        # filter by name
+        teams = Team.objects.filter(name__icontains=name)
+    if city is not None:
+        # filter by city
+        teams = Team.objects.filter(city__icontains=city)
+    if num_champs is not None:
+        # filter by num_champs
+        teams = Team.objects.filter(championships_won=num_champs)
+    if coach is not None:
+        # filter by coach
+        teams = Team.objects.filter(coach__icontains=coach)
+    if number_of_players is not None:
+        # filter by number_of_players
+        teams = Team.objects.filter(number_of_players=number_of_players)
+
+    return teams
+        
+       
 
 class TeamsByIdAPI(generics.GenericAPIView):
     """Teams By ID API Endpoints"""

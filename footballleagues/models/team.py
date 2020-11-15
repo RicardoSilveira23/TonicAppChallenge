@@ -12,7 +12,7 @@ class Team(BaseModel):
     league = models.ForeignKey(
         League,
         on_delete=models.DO_NOTHING,
-        related_name="league",
+        related_name="teams",
         blank=True,
         null=True,
     )
