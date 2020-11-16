@@ -14,6 +14,8 @@ from ..serializers import *
 class PlayersAPI(generics.GenericAPIView):
     """Players API Endpoints"""
 
+    serializer_class = PlayersSerializer
+
     def get(self, request, *args, **kwargs):
         per_page = request.GET.get("items_perpage", None)
         page_number = request.GET.get("page_number", None)
@@ -72,6 +74,8 @@ class PlayersAPI(generics.GenericAPIView):
 
 class PlayersByIdAPI(generics.GenericAPIView):
     """Players By ID API Endpoints"""
+
+    serializer_class = PlayersSerializer
 
     @validate_player
     def get(self, request, player_id, player, *args, **kwargs):

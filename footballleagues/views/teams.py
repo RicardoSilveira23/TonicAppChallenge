@@ -13,6 +13,8 @@ from ..serializers import *
 class TeamsAPI(generics.GenericAPIView):
     """Teams API Endpoints"""
 
+    serializer_class = TeamsSerializer
+
     def get(self, request, *args, **kwargs):
         # filter by name, city, n champs, coach name, number of players
         # allow pagination
@@ -105,6 +107,8 @@ def teams_filtering(teams, name, city, num_champs, coach, number_of_players):
 
 class TeamsByIdAPI(generics.GenericAPIView):
     """Teams By ID API Endpoints"""
+
+    serializer_class = TeamsSerializer
 
     @validate_team
     def get(self, request, team_id, team, *args, **kwargs):

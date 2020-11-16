@@ -14,6 +14,8 @@ from ..serializers import *
 class LeaguesAPI(generics.GenericAPIView):
     """Leagues API Endpoints"""
 
+    serializer_class = LeaguesSerializer
+
     def get(self, request, *args, **kwargs):
         # filter by name of player
         # allow pagination
@@ -85,6 +87,8 @@ class LeaguesAPI(generics.GenericAPIView):
 
 class LeaguesByIdAPI(generics.GenericAPIView):
     """Leagues By ID API Endpoints"""
+
+    serializer_class = LeaguesSerializer
 
     @validate_league
     def get(self, request, league_id, league, *args, **kwargs):
