@@ -5,7 +5,7 @@ from django.db.models import Q, Count
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.paginator import Paginator
 from drf_yasg.utils import swagger_auto_schema
-
+from django.contrib.postgres.search import TrigramSimilarity
 
 from ..models.league import League
 from .helpers import *
@@ -39,8 +39,11 @@ class LeaguesAPI(generics.GenericAPIView):
         if name is not None:
             # filter by player name
             # filter by players, that team not null, teams distinct
+            # Player.objects.filter(Q(is_deleted=False) & Q(name__search=name))
             teams_ids = (
-                Player.objects.filter(Q(is_deleted=False) & Q(name__search=name))
+                Player.objects.annotate(similarity=TrigramSimilarity("name", name))
+                .filter(is_deleted=False, similarity__gt=0.3)
+                .order_by("-similarity")
                 .values_list("team_id", flat=True)
                 .distinct()
             )

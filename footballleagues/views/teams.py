@@ -5,6 +5,8 @@ from django.db.models.functions import Now
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.paginator import Paginator
 from drf_yasg.utils import swagger_auto_schema
+from django.contrib.postgres.search import TrigramSimilarity
+
 
 from ..models.team import Team
 from .helpers import *
@@ -108,16 +110,31 @@ def teams_filtering(teams, name, city, num_champs, coach, number_of_players):
 
     if name is not None:
         # filter by name
-        teams = Team.objects.filter(name__search=name)
+        # teams = Team.objects.filter(name__search=name)
+        teams = (
+            Team.annotate(similarity=TrigramSimilarity("name", name))
+            .filter(similarity__gt=0.3)
+            .order_by("-similarity")
+        )
     if city is not None:
         # filter by city
-        teams = Team.objects.filter(city__search=city)
+        # teams = Team.objects.filter(city__search=city)
+        teams = (
+            Team.annotate(similarity=TrigramSimilarity("city", city))
+            .filter(similarity__gt=0.3)
+            .order_by("-similarity")
+        )
     if num_champs is not None:
         # filter by num_champs
         teams = Team.objects.filter(championships_won=num_champs)
     if coach is not None:
         # filter by coach
-        teams = Team.objects.filter(coach__search=coach)
+        # teams = Team.objects.filter(coach__search=coach)
+        teams = (
+            Team.annotate(similarity=TrigramSimilarity("coach", coach))
+            .filter(similarity__gt=0.3)
+            .order_by("-similarity")
+        )
     if number_of_players is not None:
         # filter by number_of_players
         teams = Team.objects.filter(number_of_players=number_of_players)
