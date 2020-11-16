@@ -5,10 +5,14 @@ from .league import *
 class Team(BaseModel):
     # Implicit id auto increment field created
     name = models.TextField(unique=True, blank=True, null=False)
-    city = models.TextField(blank=True, null=False)
-    coach = models.TextField(blank=True, null=False)
-    championships_won = models.IntegerField(blank=True, null=False, default=0)
-    number_of_players = models.IntegerField(blank=True, null=False, default=0)
+    city = models.TextField(db_index=True, blank=True, null=False)
+    coach = models.TextField(db_index=True, blank=True, null=False)
+    championships_won = models.IntegerField(
+        blank=True, null=False, default=0, db_index=True
+    )
+    number_of_players = models.IntegerField(
+        blank=True, null=False, default=0, db_index=True
+    )
     league = models.ForeignKey(
         League,
         on_delete=models.DO_NOTHING,

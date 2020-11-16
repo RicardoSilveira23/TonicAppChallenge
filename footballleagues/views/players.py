@@ -16,7 +16,7 @@ class PlayersAPI(generics.GenericAPIView):
     """
     Players API Endpoints
     """
-    
+
     serializer_class = PlayersSerializer
 
     @swagger_auto_schema(
@@ -57,7 +57,7 @@ class PlayersAPI(generics.GenericAPIView):
         responses={
             200: PlayersSerializer(many=False),
             400: "Message with list of serializer errors",
-        }
+        },
     )
     def post(self, request, *args, **kwargs):
         """
@@ -121,7 +121,7 @@ class PlayersByIdAPI(generics.GenericAPIView):
             200: UpdatePlayerSerializer(many=False),
             400: "Message with list of serializer errors",
             404: "Body empty",
-        }
+        },
     )
     @validate_player
     def put(self, request, player_id, player, *args, **kwargs):

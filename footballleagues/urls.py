@@ -3,6 +3,7 @@ from django.urls import path
 from .views.players import *
 from .views.teams import *
 from .views.leagues import *
+from .views.bootstrap import *
 
 
 urlpatterns = [
@@ -12,4 +13,5 @@ urlpatterns = [
     path("team/<int:team_id>", TeamsByIdAPI.as_view(), name="teams-details"),
     path("league", LeaguesAPI.as_view(), name="leagues"),
     path("league/<int:league_id>", LeaguesByIdAPI.as_view(), name="leagues-details"),
+    path("bootstrap", BootstrapAPI.as_view(), name="bootstrap"),
 ]

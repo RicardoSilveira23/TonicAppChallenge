@@ -64,7 +64,7 @@ class TeamsAPI(generics.GenericAPIView):
             200: TeamsSerializer(many=False),
             400: "Message with list of serializer errors",
             404: "League doesn't exist",
-        }
+        },
     )
     def post(self, request, *args, **kwargs):
         """
@@ -108,16 +108,16 @@ def teams_filtering(teams, name, city, num_champs, coach, number_of_players):
 
     if name is not None:
         # filter by name
-        teams = Team.objects.filter(name__icontains=name)
+        teams = Team.objects.filter(name__search=name)
     if city is not None:
         # filter by city
-        teams = Team.objects.filter(city__icontains=city)
+        teams = Team.objects.filter(city__search=city)
     if num_champs is not None:
         # filter by num_champs
         teams = Team.objects.filter(championships_won=num_champs)
     if coach is not None:
         # filter by coach
-        teams = Team.objects.filter(coach__icontains=coach)
+        teams = Team.objects.filter(coach__search=coach)
     if number_of_players is not None:
         # filter by number_of_players
         teams = Team.objects.filter(number_of_players=number_of_players)
@@ -152,7 +152,7 @@ class TeamsByIdAPI(generics.GenericAPIView):
             200: UpdateTeamSerializer(many=False),
             400: "Message with list of serializer errors",
             404: "Body empty",
-        }
+        },
     )
     @validate_team
     def put(self, request, team_id, team, *args, **kwargs):

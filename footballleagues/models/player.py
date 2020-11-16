@@ -4,7 +4,7 @@ from .team import *
 
 class Player(BaseModel):
     # Implicit id auto increment field created
-    name = models.TextField(blank=True, null=False)
+    name = models.TextField(db_index=True, blank=True, null=False)
     age = models.IntegerField(blank=True, null=False)
     position = models.TextField(blank=True, null=False)
     appearances = models.IntegerField(blank=True, null=False)

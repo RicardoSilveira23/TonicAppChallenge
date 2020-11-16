@@ -40,11 +40,11 @@ class LeaguesAPI(generics.GenericAPIView):
             # filter by player name
             # filter by players, that team not null, teams distinct
             teams_ids = (
-                Player.objects.filter(Q(is_deleted=False) & Q(name__icontains=name))
+                Player.objects.filter(Q(is_deleted=False) & Q(name__search=name))
                 .values_list("team_id", flat=True)
                 .distinct()
             )
-            leagues = leagues.filter(teams__id__in=teams_ids)
+            leagues = leagues.filter(teams__id__in=teams_ids).distinct()
 
         if per_page and page_number is not None:
             paginator = Paginator(leagues.order_by("-created_date"), per_page)
@@ -70,7 +70,7 @@ class LeaguesAPI(generics.GenericAPIView):
             200: LeaguesSerializer(many=False),
             400: "Message with list of serializer errors",
             404: "Team doesn't exist",
-        }
+        },
     )
     def post(self, request, *args, **kwargs):
         """
@@ -133,7 +133,7 @@ class LeaguesByIdAPI(generics.GenericAPIView):
             200: UpdateLeagueSerializer(many=False),
             400: "Message with list of serializer errors",
             404: "Body empty",
-        }
+        },
     )
     @validate_league
     def put(self, request, league_id, league, *args, **kwargs):
