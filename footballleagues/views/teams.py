@@ -26,7 +26,7 @@ class TeamsAPI(generics.GenericAPIView):
 
         teams = Team.objects.filter(is_deleted=False)
 
-        teams = teams_filtering(teams,name,city,num_champs, coach, number_of_players)
+        teams = teams_filtering(teams, name, city, num_champs, coach, number_of_players)
 
         if per_page and page_number is not None:
             paginator = Paginator(teams.order_by("-created_date"), per_page)
@@ -81,7 +81,8 @@ class TeamsAPI(generics.GenericAPIView):
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-def teams_filtering(teams, name,city,num_champs, coach, number_of_players):
+
+def teams_filtering(teams, name, city, num_champs, coach, number_of_players):
 
     if name is not None:
         # filter by name
@@ -100,8 +101,7 @@ def teams_filtering(teams, name,city,num_champs, coach, number_of_players):
         teams = Team.objects.filter(number_of_players=number_of_players)
 
     return teams
-        
-       
+
 
 class TeamsByIdAPI(generics.GenericAPIView):
     """Teams By ID API Endpoints"""

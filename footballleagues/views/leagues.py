@@ -32,7 +32,7 @@ class LeaguesAPI(generics.GenericAPIView):
                 .distinct()
             )
             leagues = leagues.filter(teams__id__in=teams_ids)
-            
+
         if per_page and page_number is not None:
             paginator = Paginator(leagues.order_by("-created_date"), per_page)
             page_content = paginator.get_page(page_number)

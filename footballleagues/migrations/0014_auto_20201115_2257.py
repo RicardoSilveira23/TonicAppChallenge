@@ -6,12 +6,12 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('footballleagues', '0013_auto_20201115_2256'),
+        ("footballleagues", "0013_auto_20201115_2256"),
     ]
 
     operations = [
         migrations.RemoveIndex(
-            model_name='player',
-            name='player_name_idx',
+            model_name="player",
+            name="player_name_idx",
         ),
     ]
