@@ -4,6 +4,7 @@ from rest_framework.response import Response
 from django.db.models import Q, Count
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.paginator import Paginator
+from drf_yasg.utils import swagger_auto_schema
 
 
 from ..models.league import League
@@ -12,11 +13,21 @@ from ..serializers import *
 
 
 class LeaguesAPI(generics.GenericAPIView):
-    """Leagues API Endpoints"""
+    """
+    Leagues API Endpoints
+    """
 
     serializer_class = LeaguesSerializer
 
+    @swagger_auto_schema(
+        responses={
+            200: LeaguesSerializer(many=True),
+        }
+    )
     def get(self, request, *args, **kwargs):
+        """
+        This is to get all leagues, allows pagination and filtering by player name
+        """
         # filter by name of player
         # allow pagination
         per_page = request.GET.get("items_perpage", None)
@@ -53,8 +64,18 @@ class LeaguesAPI(generics.GenericAPIView):
             rsp = {"leagues": serialized_data}
             return Response(rsp)
 
+    @swagger_auto_schema(
+        request_body=CreateLeagueSerializer,
+        responses={
+            200: LeaguesSerializer(many=False),
+            400: "Message with list of serializer errors",
+            404: "Team doesn't exist",
+        }
+    )
     def post(self, request, *args, **kwargs):
-
+        """
+        Allows the creation of a new league
+        """
         serializer = CreateLeagueSerializer(data=request.data)
 
         if serializer.is_valid():
@@ -90,18 +111,35 @@ class LeaguesByIdAPI(generics.GenericAPIView):
 
     serializer_class = LeaguesSerializer
 
+    @swagger_auto_schema(
+        responses={
+            200: LeaguesSerializer(many=False),
+        }
+    )
     @validate_league
     def get(self, request, league_id, league, *args, **kwargs):
-
+        """
+        Gets the information of a certain league by it's ID
+        """
         serialized_data = LeaguesSerializer(league).data
 
         rsp = {"league": serialized_data}
 
         return Response(rsp)
 
+    @swagger_auto_schema(
+        request_body=UpdateLeagueSerializer,
+        responses={
+            200: UpdateLeagueSerializer(many=False),
+            400: "Message with list of serializer errors",
+            404: "Body empty",
+        }
+    )
     @validate_league
     def put(self, request, league_id, league, *args, **kwargs):
-
+        """
+        Allows the update of a certain league details based on ID
+        """
         if not request.data:
 
             return Response({"message": "Body empty"}, status=status.HTTP_404_NOT_FOUND)
@@ -117,9 +155,12 @@ class LeaguesByIdAPI(generics.GenericAPIView):
             else:
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+    @swagger_auto_schema(responses={200: "League deleted with success"})
     @validate_league
     def delete(self, request, league_id, league, *args, **kwargs):
-
+        """
+        Allows to delete a league by id
+        """
         league.is_deleted = True
         league.save()
 

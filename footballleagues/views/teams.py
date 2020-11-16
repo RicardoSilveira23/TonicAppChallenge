@@ -4,6 +4,7 @@ from rest_framework.response import Response
 from django.db.models.functions import Now
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.paginator import Paginator
+from drf_yasg.utils import swagger_auto_schema
 
 from ..models.team import Team
 from .helpers import *
@@ -15,7 +16,16 @@ class TeamsAPI(generics.GenericAPIView):
 
     serializer_class = TeamsSerializer
 
+    @swagger_auto_schema(
+        responses={
+            200: TeamsSerializer(many=True),
+        }
+    )
     def get(self, request, *args, **kwargs):
+        """
+        This is to get all teams, allows pagination and filtering by
+        name, city, number of championships, coach name and number of players
+        """
         # filter by name, city, n champs, coach name, number of players
         # allow pagination
         per_page = request.GET.get("items_perpage", None)
@@ -48,8 +58,18 @@ class TeamsAPI(generics.GenericAPIView):
             rsp = {"teams": serialized_data}
             return Response(rsp)
 
+    @swagger_auto_schema(
+        request_body=CreateTeamSerializer,
+        responses={
+            200: TeamsSerializer(many=False),
+            400: "Message with list of serializer errors",
+            404: "League doesn't exist",
+        }
+    )
     def post(self, request, *args, **kwargs):
-
+        """
+        Allows the creation of a new team
+        """
         serializer = CreateTeamSerializer(data=request.data)
 
         if serializer.is_valid():
@@ -110,18 +130,35 @@ class TeamsByIdAPI(generics.GenericAPIView):
 
     serializer_class = TeamsSerializer
 
+    @swagger_auto_schema(
+        responses={
+            200: TeamsSerializer(many=False),
+        }
+    )
     @validate_team
     def get(self, request, team_id, team, *args, **kwargs):
-
+        """
+        Gets the information of a certain team by it's ID
+        """
         serialized_data = TeamsSerializer(team).data
 
         rsp = {"team": serialized_data}
 
         return Response(rsp)
 
+    @swagger_auto_schema(
+        request_body=UpdateTeamSerializer,
+        responses={
+            200: UpdateTeamSerializer(many=False),
+            400: "Message with list of serializer errors",
+            404: "Body empty",
+        }
+    )
     @validate_team
     def put(self, request, team_id, team, *args, **kwargs):
-
+        """
+        Allows the update of a certain team details based on ID
+        """
         if not request.data:
 
             return Response({"message": "Body empty"}, status=status.HTTP_404_NOT_FOUND)
@@ -137,9 +174,12 @@ class TeamsByIdAPI(generics.GenericAPIView):
             else:
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+    @swagger_auto_schema(responses={200: "Team deleted with success"})
     @validate_team
     def delete(self, request, team_id, team, *args, **kwargs):
-
+        """
+        Allows to delete a team by id
+        """
         team.is_deleted = True
         team.save()
 
